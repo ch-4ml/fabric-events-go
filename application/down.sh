@@ -1,4 +1,5 @@
 rm -rf wallet
+rm debug.log
 
 pushd ../../test-network
 
