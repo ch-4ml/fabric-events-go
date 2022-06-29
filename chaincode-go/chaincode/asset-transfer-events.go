@@ -24,6 +24,7 @@ type Asset struct {
 	AssetProperties AssetProperties `json:"asset_properties"`
 }
 
+// Private data
 type AssetProperties struct {
 	ObjectType string `json:"object_type"`
 	AssetID    string `json:"asset_id"`
@@ -50,6 +51,7 @@ func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("failed to marshal asset into JSON: %v", err)
 	}
 
+	// CreateAsset 이벤트 등록
 	err = ctx.GetStub().SetEvent("CreateAsset", assetJSONasBytes)
 	if err != nil {
 		return fmt.Errorf("failed to set event: %v", err)
@@ -74,6 +76,7 @@ func (s *SmartContract) TransferAsset(ctx contractapi.TransactionContextInterfac
 		return fmt.Errorf("failed to save private data: %v", err)
 	}
 
+	// TransferAsset 이벤트 등록
 	err = ctx.GetStub().SetEvent("TransferAsset", assetJSONasBytes)
 	if err != nil {
 		return fmt.Errorf("failed to set event: %v", err)
@@ -117,6 +120,7 @@ func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("failed to save private data: %v", err)
 	}
 
+	// UpdateAsset 이벤트 등록
 	err = ctx.GetStub().SetEvent("UpdateAsset", assetJSONasBytes)
 	if err != nil {
 		return fmt.Errorf("failed to set event: %v", err)
@@ -141,6 +145,7 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 		return fmt.Errorf("failed to remove private data: %v", err)
 	}
 
+	// DeleteAsset 이벤트 등록
 	err = ctx.GetStub().SetEvent("DeleteAsset", assetJSONasBytes)
 	if err != nil {
 		return fmt.Errorf("failed to set event: %v", err)
@@ -149,6 +154,7 @@ func (s *SmartContract) DeleteAsset(ctx contractapi.TransactionContextInterface,
 	return ctx.GetStub().DelState(id)
 }
 
+// Peer에 private data를 저장하는 함수
 func savePrivateData(ctx contractapi.TransactionContextInterface, assetKey string) error {
 	orgCollection, err := getCollectionName(ctx)
 	if err != nil {
@@ -178,6 +184,7 @@ func savePrivateData(ctx contractapi.TransactionContextInterface, assetKey strin
 	return nil
 }
 
+// Peer에 저장된 private data를 삭제하는 함수
 func removePrivateData(ctx contractapi.TransactionContextInterface, assetKey string) error {
 	orgCollection, err := getCollectionName(ctx)
 	if err != nil {
@@ -206,6 +213,7 @@ func removePrivateData(ctx contractapi.TransactionContextInterface, assetKey str
 	return nil
 }
 
+// Asset 정보에 private data 정보를 추가하는 함수
 func addPrivateData(ctx contractapi.TransactionContextInterface, assetKey string, asset *Asset) error {
 	orgCollection, err := getCollectionName(ctx)
 	if err != nil {
@@ -232,7 +240,6 @@ func addPrivateData(ctx contractapi.TransactionContextInterface, assetKey string
 		return fmt.Errorf("failed to unmarshal JSON: %v", err)
 	}
 
-	// 저장이 일부만 되는 오류 있음
 	asset.AssetProperties = ap
 
 	return nil
@@ -258,7 +265,7 @@ func readState(ctx contractapi.TransactionContextInterface, id string) (*Asset, 
 	return asset, nil
 }
 
-// getCollectionName is an internal helper function to get collection of submitting client identity.
+// Submit한 client id의 collection을 가져오는 helper 함수
 func getCollectionName(ctx contractapi.TransactionContextInterface) (string, error) {
 	// Get the MSP ID of submitting client identity
 	clientMSPID, err := ctx.GetClientIdentity().GetMSPID()
@@ -272,7 +279,7 @@ func getCollectionName(ctx contractapi.TransactionContextInterface) (string, err
 	return orgCollection, nil
 }
 
-// verifyClientOrgMatchesPeerOrg is an internal function used verify client org id and matches peer org id.
+// Client의 organization의 id와 peer의 organization id가 같은지 확인하는 함수.
 func verifyClientOrgMatchesPeerOrg(ctx contractapi.TransactionContextInterface) error {
 	clientMSPID, err := ctx.GetClientIdentity().GetMSPID()
 	if err != nil {
